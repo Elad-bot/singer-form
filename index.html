@@ -55,7 +55,6 @@
       font-weight: 600;
       font-size: 2.1rem;
       color: #0a376e;
-      user-select: none;
     }
     form {
       width: 100%;
@@ -67,7 +66,6 @@
       font-weight: 600;
       font-size: 0.9rem;
       color: #555;
-      user-select: none;
     }
     input[type="text"],
     input[type="email"],
@@ -82,10 +80,10 @@
       font-size: 1rem;
       border-radius: 8px;
       border: 1.8px solid #ddd;
-      transition: border-color 0.25s ease;
       font-family: 'Inter', sans-serif;
       color: #222;
       resize: vertical;
+      background-color: white;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.04);
     }
     input[type="file"] {
@@ -113,7 +111,6 @@
       font-weight: 500;
       font-size: 0.95rem;
       margin-bottom: 6px;
-      cursor: pointer;
     }
     .checkbox-group input[type="checkbox"] {
       margin-right: 10px;
@@ -131,15 +128,12 @@
       font-weight: 600;
       font-size: 0.9rem;
       color: #555;
-      user-select: none;
     }
     label.checkbox-label input[type="checkbox"] {
       margin-right: 10px;
       width: 18px;
       height: 18px;
-      cursor: pointer;
       accent-color: #0a376e;
-      flex-shrink: 0;
     }
     button {
       margin-top: 2.5rem;
@@ -154,7 +148,6 @@
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(10, 55, 110, 0.6);
       transition: background 0.3s ease, box-shadow 0.3s ease;
-      user-select: none;
     }
     button:hover,
     button:focus {
@@ -168,30 +161,29 @@
       color: #d93025;
       font-weight: 600;
       min-height: 22px;
-      user-select: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="image-top">
-      <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="" />
+      <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="music" />
     </div>
 
     <h1>Singer Intake Form</h1>
 
     <form id="singerForm" novalidate>
       <label for="fullName">Full Name *</label>
-      <input type="text" id="fullName" name="fullName" required />
+      <input type="text" id="fullName" name="fullName" required placeholder="John Smith" />
 
       <label for="stageName">Stage Name / Artist Name</label>
-      <input type="text" id="stageName" name="stageName" />
+      <input type="text" id="stageName" name="stageName" placeholder="DJ Sunshine" />
 
       <label for="email">Email Address *</label>
-      <input type="email" id="email" name="email" required />
+      <input type="email" id="email" name="email" required placeholder="you@example.com" />
 
       <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" name="phone" />
+      <input type="tel" id="phone" name="phone" placeholder="+1 234 567 890" />
 
       <label for="genre">Genre *</label>
       <select id="genre" name="genre" required>
@@ -209,7 +201,7 @@
       </select>
 
       <label for="location">Country / Location</label>
-      <input type="text" id="location" name="location" />
+      <input type="text" id="location" name="location" placeholder="Los Angeles, USA" />
 
       <label for="musicLink">Link to Music (Spotify, SoundCloud, YouTube, etc.) *</label>
       <input type="url" id="musicLink" name="musicLink" required placeholder="https://example.com/yourmusic" />
@@ -218,7 +210,7 @@
       <input type="file" id="mp3Upload" name="mp3Upload" accept=".mp3,audio/mpeg" required />
 
       <label for="mp3Description">Describe the MP3 Single You Uploaded *</label>
-      <textarea id="mp3Description" name="mp3Description" required></textarea>
+      <textarea id="mp3Description" name="mp3Description" required placeholder="This is my debut single..."></textarea>
 
       <label for="epkLink">EPK or Website Link (optional)</label>
       <input type="url" id="epkLink" name="epkLink" placeholder="https://yourwebsite.com" />
@@ -226,7 +218,7 @@
       <label for="socialLink">Linktr.ee or Similar Link (optional)</label>
       <input type="url" id="socialLink" name="socialLink" placeholder="https://linktr.ee/yourname" />
 
-      <label>Where do you want your song to be sent? (Select at least one region) *</label>
+      <label>Target Regions (Select at least one) *</label>
       <div class="checkbox-group" id="regionGroup">
         <label><input type="checkbox" name="regions" value="Israel" />Israel</label>
         <div class="separator"></div>
@@ -239,9 +231,9 @@
       </div>
 
       <label for="bio">Short Bio or Description *</label>
-      <textarea id="bio" name="bio" required></textarea>
+      <textarea id="bio" name="bio" required placeholder="Tell us who you are..."></textarea>
 
-      <label class="checkbox-label" for="consent">
+      <label class="checkbox-label">
         <input type="checkbox" id="consent" name="consent" required />
         I agree to allow my info and music to be shared with radio hosts *
       </label>
@@ -252,13 +244,13 @@
     </form>
   </div>
 
-  <script>               
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyD6knb6If3Ok7GHI9whRHtb6iDASeYo_52ORU0ef4s/dev'; // <-- Replace this!
-	const form = document.getElementById('singerForm');
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj5sakTRAgedTAFAIVAwkDeqqjBmjBdNNMXxR9VbUiRTkg2VrxIZAmqWd-_kIujEumSw/exec'; // Replace with your actual Apps Script URL
+    const form = document.getElementById('singerForm');
     const errorDiv = document.getElementById('formError');
 
     function validateEmail(email) {
-      const re = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return re.test(email);
     }
 
@@ -272,100 +264,64 @@
 
       if (!form.fullName.value.trim()) {
         errorDiv.textContent = 'Full Name is required.';
-        form.fullName.focus();
         return;
       }
 
-      if (!form.email.value.trim()) {
-        errorDiv.textContent = 'Email is required.';
-        form.email.focus();
+      if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) {
+        errorDiv.textContent = 'A valid Email is required.';
         return;
       }
-
-      //if (!validateEmail(form.email.value.trim())) {
-      //  errorDiv.textContent = 'Please enter a valid email address.';
-      //  form.email.focus();
-      //  return;
-      //}
 
       if (!form.genre.value) {
         errorDiv.textContent = 'Please select a genre.';
-        form.genre.focus();
         return;
       }
 
       if (!form.musicLink.value.trim()) {
         errorDiv.textContent = 'Music link is required.';
-        form.musicLink.focus();
         return;
       }
 
-      const mp3Input = form.mp3Upload;
-      if (mp3Input.files.length === 0) {
-        errorDiv.textContent = 'Please upload an MP3 file.';
-        mp3Input.focus();
-        return;
-      }
-      const file = mp3Input.files[0];
-      if (file.size > 10 * 1024 * 1024) {
-        errorDiv.textContent = 'MP3 file must be 10MB or less.';
-        mp3Input.focus();
+      if (form.mp3Upload.files.length === 0 || form.mp3Upload.files[0].size > 10 * 1024 * 1024) {
+        errorDiv.textContent = 'Upload an MP3 file under 10MB.';
         return;
       }
 
       if (!form.mp3Description.value.trim()) {
-        errorDiv.textContent = 'Please describe your MP3 single.';
-        form.mp3Description.focus();
+        errorDiv.textContent = 'Please describe your MP3.';
         return;
       }
 
-      const selectedRegions = getCheckedRegions();
-      if (selectedRegions.length === 0) {
-        errorDiv.textContent = 'Please select at least one target region.';
-        document.getElementById('regionGroup').scrollIntoView({ behavior: 'smooth' });
+      if (getCheckedRegions().length === 0) {
+        errorDiv.textContent = 'Select at least one region.';
         return;
       }
 
       if (!form.bio.value.trim()) {
-        errorDiv.textContent = 'Please enter a short bio.';
-        form.bio.focus();
+        errorDiv.textContent = 'Short bio is required.';
         return;
       }
 
       if (!form.consent.checked) {
-        errorDiv.textContent = 'You must agree to the consent to proceed.';
-        form.consent.focus();
+        errorDiv.textContent = 'You must agree to the consent.';
         return;
       }
 
-      const formData = {
-        fullName: form.fullName.value.trim(),
-        stageName: form.stageName.value.trim(),
-        email: form.email.value.trim(),
-        phone: form.phone.value.trim(),
-        genre: form.genre.value,
-        location: form.location.value.trim(),
-        musicLink: form.musicLink.value.trim(),
-        mp3Description: form.mp3Description.value.trim(),
-        epkLink: form.epkLink.value.trim(),
-        socialLink: form.socialLink.value.trim(),
-        regions: selectedRegions,
-        bio: form.bio.value.trim(),
-        consent: form.consent.checked,
-        mp3Uploaded: mp3Input.files[0].name
-      };
+      const formData = new FormData(form);
+      formData.append('regions', getCheckedRegions().join(', '));
+      formData.append('mp3Uploaded', form.mp3Upload.files[0].name);
 
-      console.log('Form submitted:', formData);
-      alert('Thank you for your submission!');
-      form.reset();
-    });
-  </script>
-  <script>
-    const form = document.getElementById('singerForm');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      console.log("Form submitted!");
-      // More logic here...
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors'
+      })
+      .then(() => {
+        window.location.href = 'thankyou.html';
+      })
+      .catch(() => {
+        errorDiv.textContent = 'Error submitting form. Try again.';
+      });
     });
   </script>
 </body>
