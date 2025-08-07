@@ -156,23 +156,12 @@
       box-shadow: 0 10px 28px rgba(24, 77, 159, 0.8);
       outline: none;
     }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-    }
     .error {
       margin-top: 0.6rem;
       font-size: 0.9rem;
       color: #d93025;
       font-weight: 600;
       min-height: 22px;
-    }
-    .success {
-      margin-top: 0.6rem;
-      font-size: 0.9rem;
-      color: #137333;
-      font-weight: 600;
     }
   </style>
 </head>
@@ -271,21 +260,7 @@
     return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value);
   }
 
-  function resetButton() {
-    submitButton.disabled = false;
-    submitButton.style.transform = '';
-    submitButton.style.opacity = '';
-    submitButton.textContent = 'Submit';
-  }
-
-  function setButtonLoading() {
-    submitButton.disabled = true;
-    submitButton.style.transform = 'scale(0.97)';
-    submitButton.style.opacity = '0.8';
-    submitButton.textContent = 'Uploading...';
-  }
-
-  // Add press animation for button
+  // Button press animation handlers (keep your current)
   submitButton.addEventListener('mousedown', () => {
     if (!submitButton.disabled) {
       submitButton.style.transform = 'scale(0.95)';
@@ -293,150 +268,110 @@
     }
   });
   submitButton.addEventListener('mouseup', () => {
-    if (!submitButton.disabled) {
-      submitButton.style.transform = '';
-    }
+    submitButton.style.transform = '';
   });
   submitButton.addEventListener('mouseleave', () => {
-    if (!submitButton.disabled) {
-      submitButton.style.transform = '';
-    }
+    submitButton.style.transform = '';
   });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
-    errorDiv.className = 'error';
 
     // Validation
     if (!form.fullName.value.trim()) {
       errorDiv.textContent = 'Full Name is required.';
-      return;
+      return resetButton();
     }
-
     if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) {
       errorDiv.textContent = 'A valid Email is required.';
-      return;
+      return resetButton();
     }
-
     if (!form.genre.value) {
       errorDiv.textContent = 'Please select a genre.';
-      return;
+      return resetButton();
     }
-
     if (!form.musicLink.value.trim()) {
       errorDiv.textContent = 'Music link is required.';
-      return;
+      return resetButton();
     }
-
-    const file = form.mp3Upload.files[0];
-    if (!file) {
-      errorDiv.textContent = 'Please upload an MP3 file.';
-      return;
+    if (form.mp3Upload.files.length === 0 || form.mp3Upload.files[0].size > 10 * 1024 * 1024) {
+      errorDiv.textContent = 'Upload an MP3 file under 10MB.';
+      return resetButton();
     }
-
-    if (file.size > 10 * 1024 * 1024) {
-      errorDiv.textContent = 'File size must be under 10MB.';
-      return;
-    }
-
     if (!form.mp3Description.value.trim()) {
       errorDiv.textContent = 'Please describe your MP3.';
-      return;
+      return resetButton();
     }
-
     if (getCheckedRegions().length === 0) {
       errorDiv.textContent = 'Select at least one region.';
-      return;
+      return resetButton();
     }
-
     if (!form.bio.value.trim()) {
       errorDiv.textContent = 'Short bio is required.';
-      return;
+      return resetButton();
     }
-
     if (!form.consent.checked) {
       errorDiv.textContent = 'You must agree to the consent.';
-      return;
+      return resetButton();
     }
 
-    // All validation passed, submit the form
-    setButtonLoading();
+    // Disable button and update UI
+    submitButton.disabled = true;
+    submitButton.textContent = 'Uploading MP3...';
+    submitButton.style.opacity = '0.8';
 
     try {
-      const formData = new FormData();
-      
-      // Add all form fields
-      formData.append('fullName', form.fullName.value.trim());
-      formData.append('stageName', form.stageName.value.trim());
-      formData.append('email', form.email.value.trim());
-      formData.append('phone', form.phone.value.trim());
-      formData.append('genre', form.genre.value);
-      formData.append('location', form.location.value.trim());
-      formData.append('musicLink', form.musicLink.value.trim());
-      formData.append('mp3Description', form.mp3Description.value.trim());
-      formData.append('epkLink', form.epkLink.value.trim());
-      formData.append('socialLink', form.socialLink.value.trim());
+      // 1. Upload MP3 file to Replit backend
+      const fileData = new FormData();
+      fileData.append('mp3Upload', form.mp3Upload.files[0]);
+
+      const uploadRes = await fetch('https://singer-form-file-upload-service.eladpeer.repl.co/upload', {
+        method: 'POST',
+        body: fileData
+      });
+
+      if (!uploadRes.ok) throw new Error('MP3 upload failed');
+
+      const uploadResult = await uploadRes.json();
+
+      console.log('Uploaded MP3 filename:', uploadResult.filename);
+
+      // 2. Send all form data including uploaded MP3 filename to Google Apps Script
+      submitButton.textContent = 'Submitting form...';
+
+      const formData = new FormData(form);
       formData.append('regions', getCheckedRegions().join(', '));
-      formData.append('bio', form.bio.value.trim());
-      formData.append('consent', form.consent.checked ? 'yes' : 'no');
-      
-      // Add the file
-      formData.append('mp3Upload', file);
+      formData.append('mp3Uploaded', uploadResult.filename);
 
-      console.log('Submitting form with file:', file.name, 'Size:', file.size);
-
+      // Note: Removed mode: 'no-cors' to enable response handling (if your server supports CORS)
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
+      if (!response.ok) throw new Error('Form submission failed');
 
-      // Get response text first
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
+      // Optional: parse response json if your Apps Script sends JSON
+      // const result = await response.json();
+      // if (result.status !== 'success') throw new Error(result.message || 'Submission error');
 
-      // Check if response is ok
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status} - ${responseText}`);
-      }
+      // Redirect on success
+      window.location.href = 'thankyou.html';
 
-      // Try to parse as JSON
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        console.log('Response was not JSON:', responseText);
-        
-        // If response contains "Success" or similar positive indicators
-        if (responseText.includes('Success') || responseText.includes('success')) {
-          result = { status: 'success', message: 'Form submitted successfully!' };
-        } else {
-          throw new Error('Server returned invalid response: ' + responseText);
-        }
-      }
-
-      console.log('Parsed result:', result);
-
-      if (result.status === 'success') {
-        errorDiv.textContent = 'Form submitted successfully! Redirecting...';
-        errorDiv.className = 'success';
-        setTimeout(() => {
-          window.location.href = 'thankyou.html';
-        }, 2000);
-      } else {
-        throw new Error(result.message || 'Submission failed');
-      }
-
-    } catch (error) {
-      console.error('Submission error:', error);
-      errorDiv.textContent = `Error: ${error.message}. Please try again.`;
+    } catch (err) {
+      console.error(err);
+      errorDiv.textContent = err.message || 'Something went wrong. Try again.';
       resetButton();
     }
   });
+
+  function resetButton() {
+    submitButton.disabled = false;
+    submitButton.style.transform = '';
+    submitButton.style.opacity = '';
+    submitButton.textContent = 'Submit';
+  }
 </script>
 
 </body>
