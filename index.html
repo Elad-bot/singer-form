@@ -391,13 +391,35 @@
         body: formData
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      // Get response text first
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
       // Check if response is ok
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status} - ${responseText}`);
       }
 
-      const result = await response.json();
-      console.log('Server response:', result);
+      // Try to parse as JSON
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.log('Response was not JSON:', responseText);
+        
+        // If response contains "Success" or similar positive indicators
+        if (responseText.includes('Success') || responseText.includes('success')) {
+          result = { status: 'success', message: 'Form submitted successfully!' };
+        } else {
+          throw new Error('Server returned invalid response: ' + responseText);
+        }
+      }
+
+      console.log('Parsed result:', result);
 
       if (result.status === 'success') {
         errorDiv.textContent = 'Form submitted successfully! Redirecting...';
