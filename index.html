@@ -6,7 +6,6 @@
   <title>Singer Intake Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    /* (paste your full CSS here—same as your best-looking version) */
     *{box-sizing:border-box;}
     body{margin:0;font-family:'Inter',sans-serif;background:#f5f7fa;color:#333;display:flex;justify-content:center;padding:20px;}
     .container{background:#fff;border-radius:12px;max-width:600px;width:100%;box-shadow:0 16px 32px rgba(0,0,0,0.12);overflow:hidden;}
@@ -23,8 +22,60 @@
     .checkbox-group input{margin-right:10px;}
     .separator{border-top:1px solid #ccc;margin:10px 0;}
     .error{color:#d93025;margin-top:10px;font-weight:600;}
-    button{margin-top:1.5rem;width:100%;padding:1rem;font-size:1.1rem;font-weight:700;color:#fff;background:linear-gradient(90deg,#0a376e,#184d9f);border:none;border-radius:12px;cursor:pointer;box-shadow:0 8px 20px rgba(10,55,110,0.6);}
-    button:hover{background:linear-gradient(90deg,#184d9f,#0a376e);}
+    button {
+      margin-top:1.5rem;
+      width:100%;
+      padding:1rem;
+      font-size:1.1rem;
+      font-weight:700;
+      color:#fff;
+      background:linear-gradient(90deg,#0a376e,#184d9f);
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(10,55,110,0.6);
+      transition: background 0.3s ease, transform 0.1s ease;
+      user-select:none;
+    }
+    button:hover {
+      background:linear-gradient(90deg,#184d9f,#0a376e);
+    }
+    button:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 10px rgba(10,55,110,0.8);
+    }
+    button:disabled {
+      background: #999 !important;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none !important;
+    }
+    #pickMp3Btn {
+      margin-top: 0.4rem;
+      padding: 0.7rem 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #0a376e;
+      border: 1.8px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.04);
+      transition: background 0.3s ease;
+    }
+    #pickMp3Btn:hover {
+      background: #f0f5fb;
+    }
+    #mp3FileName {
+      margin-top: 8px;
+      color: #0a376e;
+      font-weight: 600;
+      min-height: 1.5em;
+      font-size: 0.95rem;
+      user-select: text;
+      word-break: break-word;
+    }
   </style>
 </head>
 <body>
@@ -33,19 +84,18 @@
       <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="" />
     </div>
     <h1>Singer Intake Form</h1>
-    <form id="singerForm">
-      <!-- your fields with placeholders -->
+    <form id="singerForm" novalidate>
       <label>Full Name *</label>
-      <input name="fullName" required placeholder="John Smith">
+      <input name="fullName" required placeholder="John Smith" autocomplete="name" />
 
       <label>Stage Name / Artist Name</label>
-      <input name="stageName" placeholder="DJ Sunshine">
+      <input name="stageName" placeholder="DJ Sunshine" autocomplete="off" />
 
       <label>Email Address *</label>
-      <input name="email" required placeholder="you@example.com">
+      <input name="email" type="email" required placeholder="you@example.com" autocomplete="email" />
 
       <label>Phone Number</label>
-      <input name="phone" placeholder="+1 234 567 890">
+      <input name="phone" placeholder="+1 234 567 890" autocomplete="tel" />
 
       <label>Genre *</label>
       <select name="genre" required>
@@ -56,111 +106,202 @@
       </select>
 
       <label>Country / Location</label>
-      <input name="location" placeholder="New York, USA">
+      <input name="location" placeholder="New York, USA" autocomplete="off" />
 
       <label>Link to Music (Spotify, etc.) *</label>
-      <input name="musicLink" required placeholder="example.com/yourmusic">
+      <input name="musicLink" required placeholder="example.com/yourmusic" autocomplete="url" />
 
       <label>Upload MP3 *</label>
-      <input name="mp3File" type="file" accept=".mp3">
+      <button type="button" id="pickMp3Btn">Select MP3 File</button>
+      <div id="mp3FileName"></div>
 
       <label>Describe the MP3 Single *</label>
       <textarea name="mp3Description" required placeholder="About your single..."></textarea>
 
       <label>EPK or Website Link</label>
-      <input name="epkLink" placeholder="yourwebsite.com">
+      <input name="epkLink" placeholder="yourwebsite.com" autocomplete="url" />
 
       <label>Linktr.ee or Similar</label>
-      <input name="socialLink" placeholder="linktr.ee/yourname">
+      <input name="socialLink" placeholder="linktr.ee/yourname" autocomplete="url" />
 
       <label>Where do you want your song played? *</label>
       <div class="checkbox-group">
-        <label><input name="regions" type="checkbox" value="Israel">Israel</label>
+        <label><input name="regions" type="checkbox" value="Israel" />Israel</label>
         <div class="separator"></div>
-        <label><input name="regions" type="checkbox" value="Africa">Africa</label>
-        <label><input name="regions" type="checkbox" value="Asia">Asia</label>
-        <label><input name="regions" type="checkbox" value="Europe">Europe</label>
-        <label><input name="regions" type="checkbox" value="North America">North America</label>
-        <label><input name="regions" type="checkbox" value="South America">South America</label>
-        <label><input name="regions" type="checkbox" value="Australia / Oceania">Australia / Oceania</label>
+        <label><input name="regions" type="checkbox" value="Africa" />Africa</label>
+        <label><input name="regions" type="checkbox" value="Asia" />Asia</label>
+        <label><input name="regions" type="checkbox" value="Europe" />Europe</label>
+        <label><input name="regions" type="checkbox" value="North America" />North America</label>
+        <label><input name="regions" type="checkbox" value="South America" />South America</label>
+        <label><input name="regions" type="checkbox" value="Australia / Oceania" />Australia / Oceania</label>
       </div>
 
       <label>Short Bio *</label>
       <textarea name="bio" required placeholder="Tell us who you are..."></textarea>
 
       <div class="error" id="error"></div>
-      <button type="submit">Submit</button>
+      <button type="submit" id="submitBtn">Submit</button>
     </form>
   </div>
 
+  <script src="https://apis.google.com/js/api.js"></script>
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLNEgo_ZBV039yVMZB5bpNNXozoO5pVUuySaJMmjv-b3t3WdP8dJwX7xO1jyYEVyx8Q/exec';
+    const CLIENT_ID = '797137163755-3rasajjaqjppm65qfllns6sie128u15h.apps.googleusercontent.com';
+    const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+
     const form = document.getElementById('singerForm');
     const errorDiv = document.getElementById('error');
+    const submitBtn = document.getElementById('submitBtn');
+    const pickMp3Btn = document.getElementById('pickMp3Btn');
+    const mp3FileNameDiv = document.getElementById('mp3FileName');
 
+    let oauthToken;
+    let pickerApiLoaded = false;
+    let mp3FileId = null;
+
+    // === Drive Picker Functions ===
+    function loadPickerApi() {
+      gapi.load('auth', { callback: onAuthApiLoad });
+      gapi.load('picker', { callback: onPickerApiLoad });
+    }
+
+    function onAuthApiLoad() {
+      gapi.auth.authorize(
+        {
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          immediate: false,
+        },
+        handleAuthResult
+      );
+    }
+
+    function onPickerApiLoad() {
+      pickerApiLoaded = true;
+    }
+
+    function handleAuthResult(authResult) {
+      if (authResult && !authResult.error) {
+        oauthToken = authResult.access_token;
+        createPicker();
+      } else {
+        alert('Google authorization failed. Please try again.');
+        enableSubmit();
+      }
+    }
+
+    function createPicker() {
+      if (pickerApiLoaded && oauthToken) {
+        const view = new google.picker.DocsView(google.picker.ViewId.AUDIO)
+          .setMimeTypes('audio/mpeg')
+          .setSelectFolderEnabled(false);
+
+        const picker = new google.picker.PickerBuilder()
+          .setOAuthToken(oauthToken)
+          .addView(view)
+          .addView(new google.picker.DocsUploadView())
+          .setCallback(pickerCallback)
+          .build();
+
+        picker.setVisible(true);
+      }
+    }
+
+    function pickerCallback(data) {
+      if (data.action === google.picker.Action.PICKED) {
+        const file = data.docs[0];
+        mp3FileId = file.id;
+        mp3FileNameDiv.textContent = 'Selected: ' + file.name;
+      }
+    }
+
+    pickMp3Btn.addEventListener('click', () => {
+      // Load API scripts and show picker
+      if (typeof gapi === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://apis.google.com/js/api.js';
+        script.onload = () => gapi.load('client:auth2', loadPickerApi);
+        document.body.appendChild(script);
+      } else {
+        loadPickerApi();
+      }
+    });
+
+    // === Helper Functions ===
     function validateEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     }
 
-    form.addEventListener('submit', async e => {
+    function disableSubmit() {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+    }
+
+    function enableSubmit() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+    }
+
+    // === Form submission handler ===
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorDiv.textContent = '';
 
-      // Basic validation
-      const data = {};
-      const fd = new FormData(form);
-      for (let [key, val] of fd.entries()) {
-        if (key === 'regions') {
-          data.regions = data.regions||[];
-          data.regions.push(val);
-        } else {
-          data[key] = val;
-        }
-      }
-      // Validate email
-      if (!data.email || !validateEmail(data.email)) {
-        errorDiv.textContent = 'Please enter a valid email.';
-        return;
-      }
-      // Validate musicLink & auto-prefix if needed
-      if (!data.musicLink.trim()) {
-        errorDiv.textContent = 'Music link is required.';
-        return;
-      }
-      if (!/^https?:\/\//.test(data.musicLink)) {
-        data.musicLink = 'https://' + data.musicLink;
-      }
+      // Disable submit button immediately
+      disableSubmit();
 
-      // Convert MP3 to Base64
-      const file = form.mp3File.files[0];
-      if (!file) {
-        errorDiv.textContent = 'Please upload an MP3.';
-        return;
-      }
-      if (file.size > 10*1024*1024) {
-        errorDiv.textContent = 'MP3 must be under 10MB.';
-        return;
-      }
-      const base64 = await new Promise(r => {
-        const rd = new FileReader();
-        rd.onload = ()=> r(rd.result.split(',')[1]);
-        rd.readAsDataURL(file);
-      });
-
-      // Build payload
-      data.mp3Base64 = base64;
-      data.mp3FileName = file.name;
-
-      // Send to Apps Script
       try {
-        await fetch(SCRIPT_URL, {
+        // Gather form data
+        const data = {};
+        const fd = new FormData(form);
+        for (let [key, val] of fd.entries()) {
+          if (key === 'regions') {
+            data.regions = data.regions || [];
+            data.regions.push(val);
+          } else {
+            data[key] = val;
+          }
+        }
+
+        // Validate email
+        if (!data.email || !validateEmail(data.email)) {
+          throw new Error('Please enter a valid email.');
+        }
+
+        // Validate musicLink & auto-prefix if needed
+        if (!data.musicLink || !data.musicLink.trim()) {
+          throw new Error('Music link is required.');
+        }
+        if (!/^https?:\/\//i.test(data.musicLink)) {
+          data.musicLink = 'https://' + data.musicLink;
+        }
+
+        // Check MP3 file selected via Drive Picker
+        if (!mp3FileId) {
+          throw new Error('Please select an MP3 file.');
+        }
+        data.mp3FileId = mp3FileId;
+
+        // Send to Apps Script backend via fetch
+        // Replace SCRIPT_URL with your deployed Apps Script Web App URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLNEgo_ZBV039yVMZB5bpNNXozoO5pVUuySaJMmjv-b3t3WdP8dJwX7xO1jyYEVyx8Q/exec';
+
+        const response = await fetch(SCRIPT_URL, {
           method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify(data)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
         });
+
+        if (!response.ok) {
+          throw new Error('Submission failed. Please try again.');
+        }
+
+        // Success: redirect or show thank you
         window.location.href = 'thankyou.html';
+
       } catch (err) {
-        errorDiv.textContent = 'Submission failed. Try again.';
+        errorDiv.textContent = err.message;
+        enableSubmit();
       }
     });
   </script>
