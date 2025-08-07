@@ -6,6 +6,7 @@
   <title>Singer Intake Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
+    /* --- your existing CSS unchanged --- */
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -173,7 +174,13 @@
 
     <h1>Singer Intake Form</h1>
 
-    <form id="singerForm" novalidate>
+    <form
+      id="singerForm"
+      action="https://eldfocus.app.n8n.cloud/webhook-test/6c203188-71ae-4ac4-a502-be14f63bee21"
+      method="POST"
+      enctype="multipart/form-data"
+      novalidate
+    >
       <label for="fullName">Full Name *</label>
       <input type="text" id="fullName" name="fullName" required placeholder="John Smith" />
 
@@ -246,7 +253,6 @@
   </div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhNP5dkVvOiDSSqUARfufrNINgfsx1jB3eGO7-9DOQVFOgUF7vTuwo_BO0jupduzvBAA/exec';
   const form = document.getElementById('singerForm');
   const errorDiv = document.getElementById('formError');
   const submitButton = form.querySelector('button[type="submit"]');
@@ -260,110 +266,63 @@
     return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value);
   }
 
-  // Button press animation handlers (keep your current)
-  submitButton.addEventListener('mousedown', () => {
-    if (!submitButton.disabled) {
-      submitButton.style.transform = 'scale(0.95)';
-      submitButton.style.transition = 'transform 0.1s ease';
-    }
-  });
-  submitButton.addEventListener('mouseup', () => {
-    submitButton.style.transform = '';
-  });
-  submitButton.addEventListener('mouseleave', () => {
-    submitButton.style.transform = '';
-  });
-
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener('submit', (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
 
-    // Validation
+    // Validation first, so we don't disable prematurely
     if (!form.fullName.value.trim()) {
       errorDiv.textContent = 'Full Name is required.';
       return resetButton();
     }
+
     if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) {
       errorDiv.textContent = 'A valid Email is required.';
       return resetButton();
     }
+
     if (!form.genre.value) {
       errorDiv.textContent = 'Please select a genre.';
       return resetButton();
     }
+
     if (!form.musicLink.value.trim()) {
       errorDiv.textContent = 'Music link is required.';
       return resetButton();
     }
+
     if (form.mp3Upload.files.length === 0 || form.mp3Upload.files[0].size > 10 * 1024 * 1024) {
       errorDiv.textContent = 'Upload an MP3 file under 10MB.';
       return resetButton();
     }
+
     if (!form.mp3Description.value.trim()) {
       errorDiv.textContent = 'Please describe your MP3.';
       return resetButton();
     }
+
     if (getCheckedRegions().length === 0) {
       errorDiv.textContent = 'Select at least one region.';
       return resetButton();
     }
+
     if (!form.bio.value.trim()) {
       errorDiv.textContent = 'Short bio is required.';
       return resetButton();
     }
+
     if (!form.consent.checked) {
       errorDiv.textContent = 'You must agree to the consent.';
       return resetButton();
     }
 
-    // Disable button and update UI
+    // If validation passes, submit the form normally
     submitButton.disabled = true;
-    submitButton.textContent = 'Uploading MP3...';
+    submitButton.style.transform = 'scale(0.97)';
     submitButton.style.opacity = '0.8';
+    submitButton.textContent = 'Submitting...';
 
-    try {
-      // 1. Upload MP3 file to Replit backend
-      const fileData = new FormData();
-      fileData.append('mp3Upload', form.mp3Upload.files[0]);
-
-      const uploadRes = await fetch('https://singer-form-file-upload-service.eladpeer.repl.co/upload', {
-        method: 'POST',
-        body: fileData
-      });
-
-      if (!uploadRes.ok) throw new Error('MP3 upload failed');
-
-      const uploadResult = await uploadRes.json();
-
-      console.log('Uploaded MP3 filename:', uploadResult.filename);
-
-      // 2. Send all form data including uploaded MP3 filename to Google Apps Script
-      submitButton.textContent = 'Submitting form...';
-
-      const formData = new FormData(form);
-      formData.append('regions', getCheckedRegions().join(', '));
-      formData.append('mp3Uploaded', uploadResult.filename);
-
-      // Note: Removed mode: 'no-cors' to enable response handling (if your server supports CORS)
-      const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Form submission failed');
-
-      // Optional: parse response json if your Apps Script sends JSON
-      // const result = await response.json();
-      // if (result.status !== 'success') throw new Error(result.message || 'Submission error');
-
-      // Redirect on success
-      window.location.href = 'thankyou.html';
-
-    } catch (err) {
-      console.error(err);
-      errorDiv.textContent = err.message || 'Something went wrong. Try again.';
-      resetButton();
-    }
+    form.submit();
   });
 
   function resetButton() {
