@@ -156,12 +156,23 @@
       box-shadow: 0 10px 28px rgba(24, 77, 159, 0.8);
       outline: none;
     }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
     .error {
       margin-top: 0.6rem;
       font-size: 0.9rem;
       color: #d93025;
       font-weight: 600;
       min-height: 22px;
+    }
+    .success {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #137333;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -246,7 +257,7 @@
   </div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhNP5dkVvOiDSSqUARfufrNINgfsx1jB3eGO7-9DOQVFOgUF7vTuwo_BO0jupduzvBAA/exec'; // Replace with your actual Apps Script URL
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhNP5dkVvOiDSSqUARfufrNINgfsx1jB3eGO7-9DOQVFOgUF7vTuwo_BO0jupduzvBAA/exec';
   const form = document.getElementById('singerForm');
   const errorDiv = document.getElementById('formError');
   const submitButton = form.querySelector('button[type="submit"]');
@@ -260,6 +271,20 @@
     return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value);
   }
 
+  function resetButton() {
+    submitButton.disabled = false;
+    submitButton.style.transform = '';
+    submitButton.style.opacity = '';
+    submitButton.textContent = 'Submit';
+  }
+
+  function setButtonLoading() {
+    submitButton.disabled = true;
+    submitButton.style.transform = 'scale(0.97)';
+    submitButton.style.opacity = '0.8';
+    submitButton.textContent = 'Uploading...';
+  }
+
   // Add press animation for button
   submitButton.addEventListener('mousedown', () => {
     if (!submitButton.disabled) {
@@ -268,92 +293,128 @@
     }
   });
   submitButton.addEventListener('mouseup', () => {
-    submitButton.style.transform = '';
+    if (!submitButton.disabled) {
+      submitButton.style.transform = '';
+    }
   });
   submitButton.addEventListener('mouseleave', () => {
-    submitButton.style.transform = '';
+    if (!submitButton.disabled) {
+      submitButton.style.transform = '';
+    }
   });
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
+    errorDiv.className = 'error';
 
-    // Validation first, so we don't disable prematurely
+    // Validation
     if (!form.fullName.value.trim()) {
       errorDiv.textContent = 'Full Name is required.';
-      return resetButton();
+      return;
     }
 
     if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) {
       errorDiv.textContent = 'A valid Email is required.';
-      return resetButton();
+      return;
     }
 
     if (!form.genre.value) {
       errorDiv.textContent = 'Please select a genre.';
-      return resetButton();
+      return;
     }
 
     if (!form.musicLink.value.trim()) {
       errorDiv.textContent = 'Music link is required.';
-      return resetButton();
+      return;
     }
 
-    if (form.mp3Upload.files.length === 0 || form.mp3Upload.files[0].size > 10 * 1024 * 1024) {
-      errorDiv.textContent = 'Upload an MP3 file under 10MB.';
-      return resetButton();
+    const file = form.mp3Upload.files[0];
+    if (!file) {
+      errorDiv.textContent = 'Please upload an MP3 file.';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      errorDiv.textContent = 'File size must be under 10MB.';
+      return;
     }
 
     if (!form.mp3Description.value.trim()) {
       errorDiv.textContent = 'Please describe your MP3.';
-      return resetButton();
+      return;
     }
 
     if (getCheckedRegions().length === 0) {
       errorDiv.textContent = 'Select at least one region.';
-      return resetButton();
+      return;
     }
 
     if (!form.bio.value.trim()) {
       errorDiv.textContent = 'Short bio is required.';
-      return resetButton();
+      return;
     }
 
     if (!form.consent.checked) {
       errorDiv.textContent = 'You must agree to the consent.';
-      return resetButton();
+      return;
     }
 
-    // Disable button and update UI
-    submitButton.disabled = true;
-    submitButton.style.transform = 'scale(0.97)';
-    submitButton.style.opacity = '0.8';
-    submitButton.textContent = 'Submitting...';
+    // All validation passed, submit the form
+    setButtonLoading();
 
-    const formData = new FormData(form);
-    formData.append('regions', getCheckedRegions().join(', '));
-    formData.append('mp3Uploaded', form.mp3Upload.files[0].name);
+    try {
+      const formData = new FormData();
+      
+      // Add all form fields
+      formData.append('fullName', form.fullName.value.trim());
+      formData.append('stageName', form.stageName.value.trim());
+      formData.append('email', form.email.value.trim());
+      formData.append('phone', form.phone.value.trim());
+      formData.append('genre', form.genre.value);
+      formData.append('location', form.location.value.trim());
+      formData.append('musicLink', form.musicLink.value.trim());
+      formData.append('mp3Description', form.mp3Description.value.trim());
+      formData.append('epkLink', form.epkLink.value.trim());
+      formData.append('socialLink', form.socialLink.value.trim());
+      formData.append('regions', getCheckedRegions().join(', '));
+      formData.append('bio', form.bio.value.trim());
+      formData.append('consent', form.consent.checked ? 'yes' : 'no');
+      
+      // Add the file
+      formData.append('mp3Upload', file);
 
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: formData,
-      mode: 'no-cors'
-    })
-    .then(() => {
-      window.location.href = 'thankyou.html';
-    })
-    .catch(() => {
-      errorDiv.textContent = 'Error submitting form. Try again.';
+      console.log('Submitting form with file:', file.name, 'Size:', file.size);
+
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      });
+
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Server response:', result);
+
+      if (result.status === 'success') {
+        errorDiv.textContent = 'Form submitted successfully! Redirecting...';
+        errorDiv.className = 'success';
+        setTimeout(() => {
+          window.location.href = 'thankyou.html';
+        }, 2000);
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      errorDiv.textContent = `Error: ${error.message}. Please try again.`;
       resetButton();
-    });
+    }
   });
-
-  function resetButton() {
-    submitButton.disabled = false;
-    submitButton.style.transform = '';
-    submitButton.style.opacity = '';
-    submitButton.textContent = 'Submit';
-  }
 </script>
 
 </body>
