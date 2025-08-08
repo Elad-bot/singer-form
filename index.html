@@ -263,16 +263,12 @@
   }
 
   function getCheckedRegions() {
-    return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value.trim());
+    return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value);
   }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
-	
-	console.log('Regions:', JSON.stringify(getCheckedRegions()));
-	console.log('Joined regions:', JSON.stringify(getCheckedRegions().join(', ')));
-
 
     // --- Client-side validation ---
     if (!form.fullName.value.trim()) return showError('Full Name is required.');
@@ -298,7 +294,7 @@
 	formData.delete('regions');
 
 	// Add a single 'regions' field with joined values
-	formData.append('regions', getCheckedRegions().map(r => r.trim()).join(', '));
+	formData.append('regions', getCheckedRegions().join(', '));
 
 
     try {
