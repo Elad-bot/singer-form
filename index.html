@@ -294,7 +294,7 @@
 	formData.delete('regions');
 
 	// Add a single 'regions' field with joined values
-	formData.append('regions', getCheckedRegions().join(', '));
+	formData.append('regions', getCheckedRegions().map(r => r.trim()).join(', '));
 
 
     try {
