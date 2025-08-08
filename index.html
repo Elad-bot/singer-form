@@ -266,64 +266,57 @@
     return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value);
   }
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
 
-    // Validation first, so we don't disable prematurely
-    if (!form.fullName.value.trim()) {
-      errorDiv.textContent = 'Full Name is required.';
-      return resetButton();
-    }
+    // --- Client-side validation ---
+    if (!form.fullName.value.trim()) return showError('Full Name is required.');
+    if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) return showError('A valid Email is required.');
+    if (!form.genre.value) return showError('Please select a genre.');
+    if (!form.musicLink.value.trim()) return showError('Music link is required.');
+    if (form.mp3Upload.files.length === 0 || form.mp3Upload.files[0].size > 10 * 1024 * 1024)
+      return showError('Upload an MP3 file under 10MB.');
+    if (!form.mp3Description.value.trim()) return showError('Please describe your MP3.');
+    if (getCheckedRegions().length === 0) return showError('Select at least one region.');
+    if (!form.bio.value.trim()) return showError('Short bio is required.');
+    if (!form.consent.checked) return showError('You must agree to the consent.');
 
-    if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) {
-      errorDiv.textContent = 'A valid Email is required.';
-      return resetButton();
-    }
-
-    if (!form.genre.value) {
-      errorDiv.textContent = 'Please select a genre.';
-      return resetButton();
-    }
-
-    if (!form.musicLink.value.trim()) {
-      errorDiv.textContent = 'Music link is required.';
-      return resetButton();
-    }
-
-    if (form.mp3Upload.files.length === 0 || form.mp3Upload.files[0].size > 10 * 1024 * 1024) {
-      errorDiv.textContent = 'Upload an MP3 file under 10MB.';
-      return resetButton();
-    }
-
-    if (!form.mp3Description.value.trim()) {
-      errorDiv.textContent = 'Please describe your MP3.';
-      return resetButton();
-    }
-
-    if (getCheckedRegions().length === 0) {
-      errorDiv.textContent = 'Select at least one region.';
-      return resetButton();
-    }
-
-    if (!form.bio.value.trim()) {
-      errorDiv.textContent = 'Short bio is required.';
-      return resetButton();
-    }
-
-    if (!form.consent.checked) {
-      errorDiv.textContent = 'You must agree to the consent.';
-      return resetButton();
-    }
-
-    // If validation passes, submit the form normally
     submitButton.disabled = true;
     submitButton.style.transform = 'scale(0.97)';
     submitButton.style.opacity = '0.8';
     submitButton.textContent = 'Submitting...';
 
-    form.submit();
+    // Build FormData
+    const formData = new FormData(form);
+    getCheckedRegions().forEach(region => formData.append('regions', region));
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Submission failed. Please try again.');
+      }
+
+      const result = await response.json();
+
+      if (result && result.status === 'success') {
+        window.location.href = 'thankyou.html';
+      } else {
+        throw new Error(result.message || 'Unknown error occurred.');
+      }
+    } catch (err) {
+      showError(err.message);
+      resetButton();
+    }
   });
+
+  function showError(msg) {
+    errorDiv.textContent = msg;
+  }
 
   function resetButton() {
     submitButton.disabled = false;
@@ -333,5 +326,7 @@
   }
 </script>
 
+
 </body>
 </html>
+
