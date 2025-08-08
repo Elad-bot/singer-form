@@ -263,7 +263,7 @@
   }
 
   function getCheckedRegions() {
-    return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value);
+    return Array.from(document.querySelectorAll('input[name="regions"]:checked')).map(cb => cb.value.trim());
   }
 
   form.addEventListener('submit', async (event) => {
