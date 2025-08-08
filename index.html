@@ -256,6 +256,18 @@
   const form = document.getElementById('singerForm');
   const errorDiv = document.getElementById('formError');
   const submitButton = form.querySelector('button[type="submit"]');
+  
+  submitButton.addEventListener('mousedown', () => {
+    submitButton.style.transform = 'scale(0.97)';
+    submitButton.style.opacity = '0.8';
+  });
+
+  submitButton.addEventListener('mouseup', () => {
+    if (!submitButton.disabled) {
+      submitButton.style.transform = '';
+      submitButton.style.opacity = '';
+    }
+  });
 
   function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -332,4 +344,3 @@
 
 </body>
 </html>
-
