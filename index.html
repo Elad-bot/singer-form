@@ -269,6 +269,10 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
+	
+	console.log('Regions:', JSON.stringify(getCheckedRegions()));
+	console.log('Joined regions:', JSON.stringify(getCheckedRegions().join(', ')));
+
 
     // --- Client-side validation ---
     if (!form.fullName.value.trim()) return showError('Full Name is required.');
