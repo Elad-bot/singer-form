@@ -303,9 +303,11 @@
 
       const result = await response.json();
 
-      if (result && result.status === 'success') {
+      // Just redirect if response is OK (2xx)
+      if (response.ok) {
         window.location.href = 'thankyou.html';
       } else {
+        const result = await response.json().catch(() => ({}));
         throw new Error(result.message || 'Unknown error occurred.');
       }
     } catch (err) {
