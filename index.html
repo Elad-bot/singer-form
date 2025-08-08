@@ -289,7 +289,7 @@
 
     // Build FormData
     const formData = new FormData(form);
-    getCheckedRegions().forEach(region => formData.append('regions', region));
+    formData.set('regions', getCheckedRegions().join(', '));
 
     try {
 	  const response = await fetch(form.action, {
