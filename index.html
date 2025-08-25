@@ -257,8 +257,8 @@
       <label for="downloadLink">Link to Downloadable Music File (Direct URL) *</label>
       <input type="url" id="downloadLink" name="downloadLink" required placeholder="https://files.example.com/yourtrack.mp3" />
 
-      <label for="mp3Description">Describe the Song You Uploaded *</label>
-      <textarea id="mp3Description" name="mp3Description" required placeholder="This is my debut single..."></textarea>
+      <label for="SongDescription">Describe the Song You Uploaded *</label>
+      <textarea id="SongDescription" name="SongDescription" required placeholder="This is my debut single..."></textarea>
 
       <label for="epkLink">EPK or Website Link (optional)</label>
       <input type="url" id="epkLink" name="epkLink" placeholder="https://yourwebsite.com" />
@@ -334,7 +334,7 @@
     // REMOVED: MP3 upload validation
     // REMOVED: regions validation
 
-    if (!form.mp3Description.value.trim()) return showError('Please describe your MP3.');
+    if (!form.SongDescription.value.trim()) return showError('Please describe your MP3.');
     if (!form.bio.value.trim()) return showError('Short bio is required.');
     if (!form.consent.checked) return showError('You must agree to the consent.');
 
