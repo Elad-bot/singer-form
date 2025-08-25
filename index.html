@@ -331,10 +331,7 @@
 
     if (!form.downloadLink.value.trim()) return showError('Downloadable music file link is required.');
 
-    // REMOVED: MP3 upload validation
-    // REMOVED: regions validation
-
-    if (!form.SongDescription.value.trim()) return showError('Please describe your MP3.');
+    if (!form.SongDescription.value.trim()) return showError('Please describe your Song.');
     if (!form.bio.value.trim()) return showError('Short bio is required.');
     if (!form.consent.checked) return showError('You must agree to the consent.');
 
