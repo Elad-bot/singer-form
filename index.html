@@ -208,11 +208,50 @@
       <label for="location">Country / Location</label>
       <input type="text" id="location" name="location" placeholder="Los Angeles, USA" />
 
-	  <div class="separator" aria-hidden="true" style="margin-top:22px;"></div>
-	  
+      <label for="epkLink">EPK or Website Link (optional)</label>
+      <input type="url" id="epkLink" name="epkLink" placeholder="https://yourwebsite.com" />
+
+      <!-- CHANGED: Press Photo as URL (optional) -->
+      <label for="pressPhoto">Press Photo Link (URL)</label>
+      <input type="url" id="pressPhoto" name="pressPhoto" placeholder="https://example.com/press-photo.jpg" />
+
+      <label for="bio">Short Bio or Description *</label>
+      <textarea id="bio" name="bio" required placeholder="Tell us who you are..."></textarea>
+
+      <div class="separator" aria-hidden="true" style="margin-top:22px;"></div>
+      
       <label for="songTitle">Song Title *</label>
-      <input type="text" id="songTitle" name="songTitle" required placeholder="Start Over" />
-	  
+      <input type="text" id="songTitle" name="songTitle" required placeholder="I Am Flying" />
+      
+      <!-- CHANGED: required fields -->
+      <label for="performedBy">Performed by *</label>
+      <input type="text" id="performedBy" name="performedBy" required placeholder="John Smith" />
+
+      <label for="musicBy">Music by *</label>
+      <input type="text" id="musicBy" name="musicBy" required placeholder="John Smith" />
+
+      <label for="lyricsBy">Lyrics by *</label>
+      <input type="text" id="lyricsBy" name="lyricsBy" required placeholder="John Smith" />
+
+      <label for="productionBy">Production by *</label>
+      <input type="text" id="productionBy" name="productionBy" required placeholder="Gordi" />
+
+      <!-- Cover version -->
+      <label>Is this a cover version?</label>
+      <div class="checkbox-group">
+        <label><input type="radio" name="isCover" value="Yes" />Yes</label>
+        <label><input type="radio" name="isCover" value="No" />No</label>
+      </div>
+
+      <label for="originalSongTitle">Original Song Title (if cover)</label>
+      <input type="text" id="originalSongTitle" name="originalSongTitle" placeholder="Imagine" />
+
+      <label for="originalArtist">Original Artist (if cover)</label>
+      <input type="text" id="originalArtist" name="originalArtist" placeholder="John Lennon" />
+
+      <label for="licenseLink">License/Cover clearance link (optional)</label>
+      <input type="url" id="licenseLink" name="licenseLink" placeholder="https://example.com/license-proof" />
+      
       <label for="genre">Genre *</label>
       <select id="genre" name="genre" required>
         <option value="">-- Select Genre --</option>
@@ -257,20 +296,12 @@
       <label for="downloadLink">Link to Downloadable Music File (Direct URL) *</label>
       <input type="url" id="downloadLink" name="downloadLink" required placeholder="https://files.example.com/yourtrack.mp3" />
 
-      <label for="SongDescription">Describe the Song You Uploaded *</label>
+      <!-- CHANGED: Cover Artwork as required URL -->
+      <label for="coverArt">Cover Artwork Link (URL) *</label>
+      <input type="url" id="coverArt" name="coverArt" required placeholder="https://example.com/cover-art.jpg" />
+
+      <label for="SongDescription">Describe the Song *</label>
       <textarea id="SongDescription" name="SongDescription" required placeholder="This is my debut single..."></textarea>
-
-      <label for="epkLink">EPK or Website Link (optional)</label>
-      <input type="url" id="epkLink" name="epkLink" placeholder="https://yourwebsite.com" />
-
-      <label for="pressPhoto">Press Photo (JPG/PNG, up to 5MB)</label>
-      <input type="file" id="pressPhoto" name="pressPhoto" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-
-      <label for="coverArt">Cover Artwork (JPG/PNG, up to 5MB) *</label>
-      <input type="file" id="coverArt" name="coverArt" accept=".jpg,.jpeg,.png,image/jpeg,image/png" required />
-
-      <label for="bio">Short Bio or Description *</label>
-      <textarea id="bio" name="bio" required placeholder="Tell us who you are..."></textarea>
 
       <label class="checkbox-label">
         <input type="checkbox" id="consent" name="consent" required />
@@ -305,19 +336,44 @@
     return re.test(email);
   }
 
-  // REMOVED: getCheckedRegions()
+  // simple URL validation
+  function validateUrl(url) {
+    try { new URL(url); return true; } catch { return false; }
+  }
+
+  // references
+  const performedBy   = form.elements['performedBy'];
+  const musicBy       = form.elements['musicBy'];
+  const lyricsBy      = form.elements['lyricsBy'];
+  const productionBy  = form.elements['productionBy'];
+
+  const isCoverRadios     = form.querySelectorAll('input[name="isCover"]');
+  const originalSongTitle = form.elements['originalSongTitle'];
+  const originalArtist    = form.elements['originalArtist'];
+  const licenseLink       = form.elements['licenseLink'];
+
+  function updateCoverRequirements() {
+    const selected = form.querySelector('input[name="isCover"]:checked');
+    const isYes = selected && selected.value === 'Yes';
+    if (originalSongTitle) originalSongTitle.required = isYes;
+    if (originalArtist)    originalArtist.required    = isYes;
+  }
+
+  if (isCoverRadios.length) {
+    isCoverRadios.forEach(r => r.addEventListener('change', updateCoverRequirements));
+    updateCoverRequirements();
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorDiv.textContent = '';
 
-    // --- Client-side validation ---
+    // existing checks
     if (!form.fullName.value.trim()) return showError('Full Name is required.');
     if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) return showError('A valid Email is required.');
     if (!form.genre.value) return showError('Please select a genre.');
     if (!form.musicLink.value.trim()) return showError('Music link is required.');
 
-    // ADDED: new required fields
     if (!form.songTitle.value.trim()) return showError('Song Title is required.');
 
     const explicitChecked = form.querySelector('input[name="explicit"]:checked');
@@ -335,18 +391,44 @@
     if (!form.bio.value.trim()) return showError('Short bio is required.');
     if (!form.consent.checked) return showError('You must agree to the consent.');
 
-    // Cover Art required, Press Photo optional
-    if (form.coverArt.files.length === 0) return showError('Cover Artwork is required.');
+    // NEW required credits fields
+    if (!performedBy.value.trim())  return showError('Performed by is required.');
+    if (!musicBy.value.trim())      return showError('Music by is required.');
+    if (!lyricsBy.value.trim())     return showError('Lyrics by is required.');
+    if (!productionBy.value.trim()) return showError('Production by is required.');
+
+    // Press Photo link (optional) URL validity if provided
+    if (form.pressPhoto.value.trim() && !validateUrl(form.pressPhoto.value.trim())) {
+      return showError('Press Photo link must be a valid URL.');
+    }
+
+    // Cover Artwork link required + valid URL
+    if (!form.coverArt.value.trim()) return showError('Cover Artwork link is required.');
+    if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
+
+    // cover version conditional checks
+    if (isCoverRadios.length) {
+      const selected = form.querySelector('input[name="isCover"]:checked');
+      if (!selected) return showError('Please indicate if this is a cover version.');
+      if (selected.value === 'Yes') {
+        if (originalSongTitle && !originalSongTitle.value.trim()) {
+          return showError('Original Song Title is required for cover versions.');
+        }
+        if (originalArtist && !originalArtist.value.trim()) {
+          return showError('Original Artist is required for cover versions.');
+        }
+        if (licenseLink && licenseLink.value.trim() && !validateUrl(licenseLink.value.trim())) {
+          return showError('License link must be a valid URL.');
+        }
+      }
+    }
 
     submitButton.disabled = true;
     submitButton.style.transform = 'scale(0.97)';
     submitButton.style.opacity = '0.8';
     submitButton.textContent = 'Submitting...';
 
-    // Build FormData
     const formData = new FormData(form);
-
-    // REMOVED: regions flattening
 
     try {
       const response = await fetch(form.action, {
