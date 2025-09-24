@@ -378,7 +378,7 @@
     if (!musicBy.value.trim())      return showError('Music by is required.');
     if (!lyricsBy.value.trim())     return showError('Lyrics by is required.');
     if (!productionBy.value.trim()) return showError('Production by is required.');
-    if (!form.genre.value) return showError('Please select a genre.');
+    if (!form.genre.value) return showError('Genre is required.');
     
     const explicitChecked = form.querySelector('input[name="explicit"]:checked');
     if (!explicitChecked) return showError('Please indicate if the song is explicit.');
@@ -389,7 +389,8 @@
     if (!form.releaseStatus.value) return showError('Please select a Release Status.');
     if (!form.releaseDate.value) return showError('Please provide a Release Date.');
     if (!form.musicLink.value.trim()) return showError('Link to Music is required.');
-    if (!form.downloadLink.value.trim()) return showError('Link to Downloadable music File is required.');
+    /*if (!form.downloadLink.value.trim()) return showError('Link to Downloadable music File is required.');*/
+    if (!validateUrl(form.downloadLink.value.trim())) return showError('Link to Downloadable music File must be a valid URL.');
     if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
     if (!form.SongDescription.value.trim()) return showError('Please describe your Song.');
     
