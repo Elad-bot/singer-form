@@ -208,7 +208,7 @@
       <label for="location">Country / Location</label>
       <input type="text" id="location" name="location" placeholder="Los Angeles, USA" />
 
-      <label for="epkLink">EPK or Website Link (optional)</label>
+      <label for="epkLink">EPK or Website Link</label>
       <input type="url" id="epkLink" name="epkLink" placeholder="https://yourwebsite.com" />
 
       <!-- CHANGED: Press Photo as URL (optional) -->
@@ -249,7 +249,7 @@
       <label for="originalArtist">Original Artist (if cover)</label>
       <input type="text" id="originalArtist" name="originalArtist" placeholder="John Lennon" />
 
-      <label for="licenseLink">License/Cover clearance link (optional)</label>
+      <label for="licenseLink">License/Cover clearance link</label>
       <input type="url" id="licenseLink" name="licenseLink" placeholder="https://example.com/license-proof" />
       
       <label for="genre">Genre *</label>
@@ -404,14 +404,22 @@
     const radioEditChecked = form.querySelector('input[name="hasRadioEdit"]:checked');
     if (!radioEditChecked) return showError('Please indicate if a Radio Edit is available.');
 
-    if (!form.releaseStatus.value) return showError('Please select a Release Status.');
-    if (!form.releaseDate.value) return showError('Please provide a Release Date.');
+    if (!form.releaseStatus.value) return showError('Release Status is required.');
+    if (!form.releaseDate.value) return showError('Release Date is required.');
+
+    // Link to Music is required + valid URL
     if (!form.musicLink.value.trim()) return showError('Link to Music is required.');
-    /*if (!form.downloadLink.value.trim()) return showError('Link to Downloadable music File is required.');*/
-    if (!validateUrl(form.downloadLink.value.trim())) return showError('Link to Downloadable music File must be a valid URL.');
-    if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
-    if (!form.SongDescription.value.trim()) return showError('Please describe your Song.');
+    if (!validateUrl(!form.musicLink.value.trim())) return showError('Link to Music must be a valid URL.');
+
+    // Link to Downloadable music File is required + valid URL
+    if (!form.downloadLink.value.trim()) return showError('Link to Downloadable Music File is required.');
+    if (!validateUrl(form.downloadLink.value.trim())) return showError('Link to Downloadable Music File must be a valid URL.');
     
+    // Cover Artwork link required + valid URL
+    if (!form.coverArt.value.trim()) return showError('Cover Artwork link is required.');
+    if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
+    
+    if (!form.SongDescription.value.trim()) return showError('Please describe your Song.');
     if (!form.consent.checked) return showError('You must agree to the consent.');
 
     
@@ -421,12 +429,6 @@
     }
 
     
-    // Cover Artwork link required + valid URL
-    if (!form.coverArt.value.trim()) return showError('Cover Artwork link is required.');
-    
-
-    
-
     submitButton.disabled = true;
     submitButton.style.transform = 'scale(0.97)';
     submitButton.style.opacity = '0.8';
