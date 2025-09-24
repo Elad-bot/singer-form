@@ -408,7 +408,7 @@
     if (!form.releaseDate.value) return showError('Release Date is required.');
 
     // Link to Music is required + valid URL
-    if (!form.musicLink.value.trim()) return showError('Link to Music is required.');
+    if (!form.musicLink.value) return showError('Link to Music is required.');
     if (!validateUrl(!form.musicLink.value.trim())) return showError('Link to Music must be a valid URL.');
 
     // Link to Downloadable music File is required + valid URL
