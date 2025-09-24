@@ -409,15 +409,15 @@
 
     // Link to Music is required + valid URL
     if (!form.musicLink.value.trim()) return showError('Link to Music is required.');
-    //if (!validateUrl(!form.musicLink.value.trim())) return showError('Link to Music must be a valid URL.');
+    if (!validateUrl(!form.musicLink.value.trim())) return showError('Link to Music must be a valid URL.');
 
     // Link to Downloadable music File is required + valid URL
     if (!form.downloadLink.value.trim()) return showError('Link to Downloadable Music File is required.');
-    //if (!validateUrl(form.downloadLink.value.trim())) return showError('Link to Downloadable Music File must be a valid URL.');
+    if (!validateUrl(form.downloadLink.value.trim())) return showError('Link to Downloadable Music File must be a valid URL.');
     
     // Cover Artwork link required + valid URL
     if (!form.coverArt.value.trim()) return showError('Cover Artwork link is required.');
-    //if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
+    if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
     
     if (!form.SongDescription.value.trim()) return showError('Please describe your Song.');
     if (!form.consent.checked) return showError('You must agree to the consent.');
