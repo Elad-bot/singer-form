@@ -371,11 +371,15 @@
     // existing checks
     if (!form.fullName.value.trim()) return showError('Full Name is required.');
     if (!form.email.value.trim() || !validateEmail(form.email.value.trim())) return showError('A valid Email is required.');
-    if (!form.genre.value) return showError('Please select a genre.');
-    if (!form.musicLink.value.trim()) return showError('Music link is required.');
+    if (!form.bio.value.trim()) return showError('Short bio is required.');
 
     if (!form.songTitle.value.trim()) return showError('Song Title is required.');
-
+    if (!performedBy.value.trim())  return showError('Performed by is required.');
+    if (!musicBy.value.trim())      return showError('Music by is required.');
+    if (!lyricsBy.value.trim())     return showError('Lyrics by is required.');
+    if (!productionBy.value.trim()) return showError('Production by is required.');
+    if (!form.genre.value) return showError('Please select a genre.');
+    
     const explicitChecked = form.querySelector('input[name="explicit"]:checked');
     if (!explicitChecked) return showError('Please indicate if the song is explicit.');
 
@@ -384,27 +388,23 @@
 
     if (!form.releaseStatus.value) return showError('Please select a Release Status.');
     if (!form.releaseDate.value) return showError('Please provide a Release Date.');
-
-    if (!form.downloadLink.value.trim()) return showError('Downloadable music file link is required.');
-
+    if (!form.musicLink.value.trim()) return showError('Link to Music is required.');
+    if (!form.downloadLink.value.trim()) return showError('Link to Downloadable music File is required.');
+    if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
     if (!form.SongDescription.value.trim()) return showError('Please describe your Song.');
-    if (!form.bio.value.trim()) return showError('Short bio is required.');
+    
     if (!form.consent.checked) return showError('You must agree to the consent.');
 
-    // NEW required credits fields
-    if (!performedBy.value.trim())  return showError('Performed by is required.');
-    if (!musicBy.value.trim())      return showError('Music by is required.');
-    if (!lyricsBy.value.trim())     return showError('Lyrics by is required.');
-    if (!productionBy.value.trim()) return showError('Production by is required.');
-
+    
     // Press Photo link (optional) URL validity if provided
     if (form.pressPhoto.value.trim() && !validateUrl(form.pressPhoto.value.trim())) {
       return showError('Press Photo link must be a valid URL.');
     }
 
+    
     // Cover Artwork link required + valid URL
     if (!form.coverArt.value.trim()) return showError('Cover Artwork link is required.');
-    if (!validateUrl(form.coverArt.value.trim())) return showError('Cover Artwork link must be a valid URL.');
+    
 
     // cover version conditional checks
     if (isCoverRadios.length) {
