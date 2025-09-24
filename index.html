@@ -237,7 +237,7 @@
       <input type="text" id="productionBy" name="productionBy" required placeholder="Gordi" />
 
       <!-- Cover version -->
-      <label>Is this a cover version?</label>
+      <label>Is this a cover version? *</label>
       <div class="checkbox-group">
         <label><input type="radio" name="isCover" value="Yes" />Yes</label>
         <label><input type="radio" name="isCover" value="No" />No</label>
@@ -378,6 +378,24 @@
     if (!musicBy.value.trim())      return showError('Music by is required.');
     if (!lyricsBy.value.trim())     return showError('Lyrics by is required.');
     if (!productionBy.value.trim()) return showError('Production by is required.');
+
+    // cover version conditional checks
+    if (isCoverRadios.length) {
+      const selected = form.querySelector('input[name="isCover"]:checked');
+      if (!selected) return showError('Please indicate if this is a cover version.');
+      if (selected.value === 'Yes') {
+        if (originalSongTitle && !originalSongTitle.value.trim()) {
+          return showError('Original Song Title is required for cover versions.');
+        }
+        if (originalArtist && !originalArtist.value.trim()) {
+          return showError('Original Artist is required for cover versions.');
+        }
+        if (licenseLink && licenseLink.value.trim() && !validateUrl(licenseLink.value.trim())) {
+          return showError('License link must be a valid URL.');
+        }
+      }
+    }
+    
     if (!form.genre.value) return showError('Genre is required.');
     
     const explicitChecked = form.querySelector('input[name="explicit"]:checked');
@@ -407,22 +425,7 @@
     if (!form.coverArt.value.trim()) return showError('Cover Artwork link is required.');
     
 
-    // cover version conditional checks
-    if (isCoverRadios.length) {
-      const selected = form.querySelector('input[name="isCover"]:checked');
-      if (!selected) return showError('Please indicate if this is a cover version.');
-      if (selected.value === 'Yes') {
-        if (originalSongTitle && !originalSongTitle.value.trim()) {
-          return showError('Original Song Title is required for cover versions.');
-        }
-        if (originalArtist && !originalArtist.value.trim()) {
-          return showError('Original Artist is required for cover versions.');
-        }
-        if (licenseLink && licenseLink.value.trim() && !validateUrl(licenseLink.value.trim())) {
-          return showError('License link must be a valid URL.');
-        }
-      }
-    }
+    
 
     submitButton.disabled = true;
     submitButton.style.transform = 'scale(0.97)';
